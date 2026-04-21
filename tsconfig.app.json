@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+    "@/*": ["src/*"],
+    "@src/*": ["src/*"],
+    "@components/*": ["src/components/*"],
+    "@pages/*": ["src/pages/*"],
+    "@api/*": ["src/api/*"],
+    "@hooks/*": ["src/hooks/*"],
+    "@utils/*": ["src/utils/*"],
+    "@ws/*": ["src/ws/*"]
+  },
+
+    "outDir": "./dist/",
+        
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+
+    // 🔽 ここが今回のポイント
+    "jsx": "react-jsx",
+    "types": ["react", "react-dom"]
+  },
+  "include": ["src"]
+}
