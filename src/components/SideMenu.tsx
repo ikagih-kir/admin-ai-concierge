@@ -23,7 +23,10 @@ const menu: MenuItem[] = [
       { label: "ダッシュボード", path: "/dashboard" },
       { label: "掲載サイト管理", path: "/sites" },
       { label: "条件変わり馬管理", path: "/race-change-highlights" },
-      { label: "枠順トレンド管理", path: "/frame-trends" },
+      { label: "勝ち筋管理", children: [
+        { label: "枠順トレンド", path: "/frame-trends" },
+        { label: "騎手トレンド", path: "/jockey-trends" },
+      ]}, 
       { label: "秘書メッセージ管理", path: "/assistant-messages" },
       { label: "AIチャットFAQ管理", path: "/chat-faqs" },
       { label: "AIチャット質問ログ", path: "/chat-question-logs" },
