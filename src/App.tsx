@@ -39,6 +39,9 @@ import ChatFaqCreatePage from "@pages/ChatFaq/ChatFaqCreatePage";
 import ChatFaqEditPage from "@pages/ChatFaq/ChatFaqEditPage";
 import ChatQuestionLogListPage from "@pages/ChatQuestionLog/ChatQuestionLogListPage";
 
+import JockeyTrendListPage from "./pages/JockeyTrend/JockeyTrendListPage";
+import JockeyTrendInputPage from "./pages/JockeyTrend/JockeyTrendInputPage";
+
 import Login from "./pages/Login/LoginPage";
 
 /**
@@ -119,6 +122,11 @@ const App = () => {
 
         {/* チャット質問ログ */}
         <Route path="/chat-question-logs" element={<ChatQuestionLogListPage />} />
+        
+        {/* 騎手傾向管理 */}
+        <Route path="/jockey-trends" element={<JockeyTrendListPage />} />
+        <Route path="/jockey-trends/input" element={<JockeyTrendInputPage />} />
+      
       </Route>
       
 
