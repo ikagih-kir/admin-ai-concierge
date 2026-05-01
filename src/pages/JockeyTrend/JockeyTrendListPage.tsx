@@ -67,6 +67,48 @@ export default function JockeyTrendListPage() {
     ? items.filter((item) => item.is_published)
     : items;
 
+  type JockeyTrendGroup = {
+    key: string;
+    race_date: string;
+    venue: string;
+    meeting_type: MeetingType;
+    is_published: boolean;
+    items: JockeyTrendItem[];
+  };
+
+  const groupedItems: JockeyTrendGroup[] = Object.values(
+    filteredItems.reduce<Record<string, JockeyTrendGroup>>((acc, item) => {
+      const venue = item.venue ?? "-";
+      const key = `${item.race_date}_${item.meeting_type}_${venue}`;
+
+      if (!acc[key]) {
+        acc[key] = {
+          key,
+          race_date: item.race_date,
+          venue,
+          meeting_type: item.meeting_type,
+          is_published: item.is_published,
+          items: [],
+        };
+      }
+
+      acc[key].items.push(item);
+
+      if (item.is_published) {
+        acc[key].is_published = true;
+      }
+
+      return acc;
+    }, {})
+  ).sort((a, b) => {
+    const dateCompare =
+      new Date(b.race_date).getTime() - new Date(a.race_date).getTime();
+
+    if (dateCompare !== 0) return dateCompare;
+
+    return a.venue.localeCompare(b.venue, "ja");
+  });  
+
   return (
     <Box p={3}>
       <Stack
@@ -119,14 +161,11 @@ export default function JockeyTrendListPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
               <TableCell>対象日</TableCell>
               <TableCell>種別</TableCell>
               <TableCell>競馬場</TableCell>
-              <TableCell>R</TableCell>
-              <TableCell>騎手名</TableCell>
-              <TableCell>馬名</TableCell>
-              <TableCell>メモ</TableCell>
+              <TableCell>登録R</TableCell>
+              <TableCell>1〜6R 勝利騎手</TableCell>
               <TableCell>公開</TableCell>
               <TableCell align="right">操作</TableCell>
             </TableRow>
@@ -135,7 +174,7 @@ export default function JockeyTrendListPage() {
           <TableBody>
             {loading && (
               <TableRow>
-                <TableCell colSpan={10} align="center">
+                <TableCell colSpan={7} align="center">
                   読み込み中...
                 </TableCell>
               </TableRow>
@@ -150,51 +189,91 @@ export default function JockeyTrendListPage() {
             )}
 
             {!loading &&
-              filteredItems.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.id}</TableCell>
-                  <TableCell>{item.race_date}</TableCell>
-                  <TableCell>
-                    <Chip
-                      size="small"
-                      label={meetingLabel(item.meeting_type)}
-                      color={
-                        item.meeting_type === "central" ? "success" : "warning"
-                      }
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell>{item.venue ?? "-"}</TableCell>
-                  <TableCell>{item.race_no}R</TableCell>
-                  <TableCell>
-                    <Typography fontWeight="bold">
-                      {item.jockey_name}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{item.horse_name ?? "-"}</TableCell>
-                  <TableCell>{item.memo ?? "-"}</TableCell>
-                  <TableCell>
-                    <Chip
-                      size="small"
-                      label={item.is_published ? "公開" : "非公開"}
-                      color={item.is_published ? "primary" : "default"}
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Stack direction="row" spacing={1} justifyContent="flex-end">
-                      <Button
+              groupedItems.map((group) => {
+                const sortedRaces = [...group.items].sort(
+                  (a, b) => a.race_no - b.race_no
+                );
+
+                return (
+                  <TableRow key={group.key}>
+                    <TableCell>{group.race_date}</TableCell>
+
+                    <TableCell>
+                      <Chip
                         size="small"
-                        color="error"
+                        label={meetingLabel(group.meeting_type)}
+                        color={group.meeting_type === "central" ? "success" : "warning"}
                         variant="outlined"
-                        onClick={() => handleDelete(item.id)}
-                      >
-                        削除
-                      </Button>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))}
+                      />
+                    </TableCell>
+            
+                    <TableCell>{group.venue}</TableCell>
+            
+                    <TableCell>{sortedRaces.length}件</TableCell>
+            
+                    <TableCell>
+                      <Stack spacing={0.5}>
+                        {sortedRaces.map((item) => (
+                          <Typography key={item.id} variant="body2">
+                            <strong>{item.race_no}R</strong>：{item.jockey_name}
+                            {item.horse_name ? `（${item.horse_name}）` : ""}
+                          </Typography>
+                        ))}
+                      </Stack>
+                    </TableCell>
+            
+                    <TableCell>
+                      <Chip
+                        size="small"
+                        label={group.is_published ? "公開あり" : "非公開"}
+                        color={group.is_published ? "primary" : "default"}
+                        variant="outlined"
+                      />
+                    </TableCell>
+            
+                    <TableCell align="right">
+                      <Stack direction="row" spacing={1} justifyContent="flex-end">
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() =>
+                            navigate(
+                              `/jockey-trends/input?race_date=${group.race_date}&venue=${encodeURIComponent(
+                                group.venue
+                              )}&meeting_type=${group.meeting_type}`
+                            )
+                          }
+                        >
+                          編集
+                        </Button>
+
+                        <Button
+                          size="small"
+                          color="error"
+                          variant="outlined"
+                          onClick={async () => {
+                            const ok = window.confirm(
+                              `${group.race_date} ${group.venue} の騎手トレンドをまとめて削除しますか？`
+                            );
+                            if (!ok) return;
+            
+                            try {
+                              for (const item of group.items) {
+                                await deleteJockeyTrend(item.id);
+                              }
+                              await load();
+                            } catch (e: any) {
+                              alert(e?.response?.data?.detail ?? "削除に失敗しました");
+                            }
+                          }}
+                        >
+                          まとめて削除
+                        </Button>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </Paper>

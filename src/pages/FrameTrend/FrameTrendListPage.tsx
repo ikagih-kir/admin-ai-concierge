@@ -79,8 +79,17 @@ export default function FrameTrendListPage() {
   };
 
   const filteredItems = showPublicOnly
-    ? items.filter((item) => item.is_public)
-    : items;
+  ? items.filter((item) => item.is_public)
+  : items;
+
+  const sortedItems = [...filteredItems].sort((a, b) => {
+    const dateCompare =
+      new Date(b.target_date).getTime() - new Date(a.target_date).getTime();
+
+    if (dateCompare !== 0) return dateCompare;
+
+    return (b.id ?? 0) - (a.id ?? 0);
+  });
 
   return (
     <Box p={3}>
@@ -147,7 +156,7 @@ export default function FrameTrendListPage() {
           </TableHead>
 
           <TableBody>
-            {!loading && filteredItems.length === 0 && (
+            {!loading && sortedItems.length === 0 && (
               <TableRow>
                 <TableCell colSpan={11} align="center">
                   データがありません
@@ -155,7 +164,7 @@ export default function FrameTrendListPage() {
               </TableRow>
             )}
 
-            {filteredItems.map((item) => (
+            {sortedItems.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.id}</TableCell>
                 <TableCell>{item.target_date}</TableCell>

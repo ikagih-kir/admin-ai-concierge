@@ -22,11 +22,8 @@ const menu: MenuItem[] = [
     children: [
       { label: "ダッシュボード", path: "/dashboard" },
       { label: "掲載サイト管理", path: "/sites" },
-      { label: "条件変わり馬管理", path: "/race-change-highlights" },
-      { label: "勝ち筋管理", children: [
-        { label: "枠順トレンド", path: "/frame-trends" },
-        { label: "騎手トレンド", path: "/jockey-trends" },
-      ]}, 
+      { label: "枠順トレンド入力", path: "/frame-trends" },
+      { label: "騎手トレンド入力", path: "/jockey-trends" },
       { label: "秘書メッセージ管理", path: "/assistant-messages" },
       { label: "AIチャットFAQ管理", path: "/chat-faqs" },
       { label: "AIチャット質問ログ", path: "/chat-question-logs" },
@@ -44,8 +41,8 @@ const menu: MenuItem[] = [
       { label: "実績を作成", path: "/hit-results/new" },
       { label: "クチコミを作成", path: "/reviews/create" },
       { label: "掲載サイトを作成", path: "/sites/new" },
-      { label: "条件変わり馬を作成", path: "/race-change-highlights/create" },
       { label: "枠順トレンドを作成", path: "/frame-trends/create" },
+      { label: "騎手トレンドを作成", path: "/jockey-trends/input" },
       { label: "秘書メッセージを作成", path: "/assistant-messages/create" },
       { label: "記事を作成", path: "/articles/new" },
     ],
