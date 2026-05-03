@@ -32,6 +32,7 @@ export default function ReviewCreatePage() {
   const [comment, setComment] = useState("");
   const [isPublic, setIsPublic] = useState(true);
   const [helpfulCount, setHelpfulCount] = useState(0);
+  const [createdAt, setCreatedAt] = useState("");
 
   useEffect(() => {
     fetchSites().then(setSites);
@@ -51,6 +52,7 @@ export default function ReviewCreatePage() {
         comment,
         is_public: isPublic,
         helpful_count: helpfulCount,
+        created_at: createdAt ? new Date(createdAt).toISOString() : undefined,
       });
 
       alert("保存しました");
@@ -96,6 +98,15 @@ export default function ReviewCreatePage() {
             onChange={(_, newValue) => setRating(newValue)}
           />
         </Box>
+
+        <TextField
+          label="投稿日"
+          type="datetime-local"
+          value={createdAt}
+          onChange={(e) => setCreatedAt(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+          helperText="未入力の場合は現在日時で保存されます"
+        />  
 
         <TextField
           label="クチコミ内容"

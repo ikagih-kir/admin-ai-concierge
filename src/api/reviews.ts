@@ -14,6 +14,7 @@ export const createReview = async (data: {
   image_url?: string;
   is_public: boolean;
   helpful_count?: number;
+  created_at?: string;
 }) => {
   const res = await apiClient.post("/admin/reviews", {
     ...data,
@@ -33,6 +34,7 @@ export const updateReview = async (
     image_url?: string;
     is_public?: boolean;
     helpful_count?: number;
+    created_at?: string;
   }
 ) => {
   const res = await apiClient.put(`/admin/reviews/${id}`, data);

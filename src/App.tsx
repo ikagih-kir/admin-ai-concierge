@@ -12,6 +12,7 @@ import HitResultCreatePage from "./pages/HitResult/HitResultCreatePage";
 
 import ReviewListPage from "./pages/Review/ReviewListPage";
 import ReviewCreatePage from "./pages/Review/ReviewCreatePage";
+import ReviewEditPage from "./pages/Review/ReviewEditPage";
 
 import SiteListPage from "./pages/Site/SiteListPage";
 import SiteCreatePage from "./pages/Site/SiteCreatePage";
@@ -85,6 +86,7 @@ const App = () => {
         {/* クチコミ管理（旧: レビュー管理） */}
         <Route path="/reviews" element={<ReviewListPage />} />
         <Route path="/reviews/create" element={<ReviewCreatePage />} />
+        <Route path="/reviews/:id/edit" element={<ReviewEditPage />} />
 
         {/* 掲載サイト管理 */}
         <Route path="/sites" element={<SiteListPage />} />

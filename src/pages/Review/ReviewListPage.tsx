@@ -144,7 +144,7 @@ const ReviewListPage = () => {
                     variant="contained"
                     color="warning"
                     size="small"
-                    onClick={() => setSelected(r)}
+                    onClick={() => navigate(`/reviews/${r.id}/edit`)}
                     sx={{
                       fontWeight: 700,
                       minWidth: 72,
