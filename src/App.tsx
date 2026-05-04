@@ -43,6 +43,9 @@ import ChatQuestionLogListPage from "@pages/ChatQuestionLog/ChatQuestionLogListP
 import JockeyTrendListPage from "./pages/JockeyTrend/JockeyTrendListPage";
 import JockeyTrendInputPage from "./pages/JockeyTrend/JockeyTrendInputPage";
 
+import HomeDialogListPage from "./pages/HomeDialog/HomeDialogListPage";
+import HomeDialogCreatePage from "./pages/HomeDialog/HomeDialogCreatePage";
+
 import Login from "./pages/Login/LoginPage";
 
 /**
@@ -128,6 +131,12 @@ const App = () => {
         {/* 騎手傾向管理 */}
         <Route path="/jockey-trends" element={<JockeyTrendListPage />} />
         <Route path="/jockey-trends/input" element={<JockeyTrendInputPage />} />
+        
+        {/* ホームダイアログ管理 */}
+        <Route path="/home-dialogs" element={<HomeDialogListPage />} />
+        <Route path="/home-dialogs/create" element={<HomeDialogCreatePage />} />
+        <Route path="/home-dialogs/:id/edit" element={<HomeDialogCreatePage />} />
+        
       
       </Route>
       

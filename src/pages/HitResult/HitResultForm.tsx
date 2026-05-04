@@ -54,7 +54,7 @@ const HitResultForm = ({ initial, onSubmit }: Props) => {
           type="date"
           label="レース日"
           name="race_date"
-          InputLabelProps={{ shrink: true }}
+          slotProps={{ inputLabel: { shrink: true } }}
           value={form.race_date}
           onChange={handleChange}
         />

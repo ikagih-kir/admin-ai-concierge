@@ -104,7 +104,7 @@ export default function ReviewCreatePage() {
           type="datetime-local"
           value={createdAt}
           onChange={(e) => setCreatedAt(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          slotProps={{ inputLabel: { shrink: true } }}
           helperText="未入力の場合は現在日時で保存されます"
         />  
 

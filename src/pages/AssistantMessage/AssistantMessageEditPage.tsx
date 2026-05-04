@@ -139,7 +139,7 @@ export default function AssistantMessageEditPage() {
           type="date"
           value={targetDate}
           onChange={(e) => setTargetDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          slotProps={{ inputLabel: { shrink: true } }}
           required
           fullWidth
         />

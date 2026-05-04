@@ -190,7 +190,7 @@ export default function ReviewEditPage() {
           type="datetime-local"
           value={createdAt}
           onChange={(e) => setCreatedAt(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          slotProps={{ inputLabel: { shrink: true } }}
         />
 
         <TextField

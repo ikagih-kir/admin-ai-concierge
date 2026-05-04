@@ -113,7 +113,7 @@ export default function FrameTrendEditPage() {
           type="date"
           value={targetDate}
           onChange={(e) => setTargetDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          slotProps={{ inputLabel: { shrink: true } }}
           required
           fullWidth
         />

@@ -68,14 +68,14 @@ const ProductSidePanel = () => {
               size="small"
               fullWidth
               label="開始日"
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
             />
             <TextField
               type="date"
               size="small"
               fullWidth
               label="終了日"
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
             />
           </Stack>
 

@@ -85,7 +85,7 @@ const ProductStatusBanner = ({
           size="small"
           value={publishFrom ?? ""}
           onChange={(e) => onChangePublishFrom(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          slotProps={{ inputLabel: { shrink: true } }}
         />
 
         <TextField
@@ -94,7 +94,7 @@ const ProductStatusBanner = ({
           size="small"
           value={publishTo ?? ""}
           onChange={(e) => onChangePublishTo(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          slotProps={{ inputLabel: { shrink: true } }}
         />
 
         <Divider />
@@ -129,7 +129,7 @@ const ProductStatusBanner = ({
             size="small"
             value={soldOutAfter ?? ""}
             onChange={(e) => onChangeSoldOutAfter(e.target.value)}
-            InputLabelProps={{ shrink: true }}
+            slotProps={{ inputLabel: { shrink: true } }}
           />
         )}
       </Stack>

@@ -312,7 +312,7 @@ export default function JockeyTrendInputPage() {
                   type="date"
                   value={raceDate}
                   onChange={(e) => setRaceDate(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
+                  slotProps={{ inputLabel: { shrink: true } }}
                   fullWidth
                 />
 

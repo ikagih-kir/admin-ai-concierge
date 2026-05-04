@@ -254,7 +254,7 @@ export default function ArticleEditPage() {
           type="datetime-local"
           value={publishedAt}
           onChange={(e) => setPublishedAt(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          slotProps={{ inputLabel: { shrink: true } }}
           fullWidth
         />
 

@@ -97,7 +97,7 @@ const MailConditionPage = () => {
               <TextField
                 label="登録日（開始）"
                 type="date"
-                InputLabelProps={{ shrink: true }}
+                slotProps={{ inputLabel: { shrink: true } }}
                 value={conditions.registeredFrom}
                 onChange={(e) =>
                   handleChange("registeredFrom", e.target.value)
@@ -106,7 +106,7 @@ const MailConditionPage = () => {
               <TextField
                 label="登録日（終了）"
                 type="date"
-                InputLabelProps={{ shrink: true }}
+                slotProps={{ inputLabel: { shrink: true } }}
                 value={conditions.registeredTo}
                 onChange={(e) =>
                   handleChange("registeredTo", e.target.value)

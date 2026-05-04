@@ -109,7 +109,7 @@ export default function RaceChangeHighlightCreatePage() {
           type="date"
           value={targetDate}
           onChange={(e) => setTargetDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          slotProps={{ inputLabel: { shrink: true } }}
           required
           fullWidth
         />

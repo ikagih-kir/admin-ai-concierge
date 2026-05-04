@@ -111,7 +111,7 @@ const MailAutoPage = () => {
                 label="送信時刻"
                 defaultValue="12:00"
                 sx={{ width: 160 }}
-                InputLabelProps={{ shrink: true }}
+                slotProps={{ inputLabel: { shrink: true } }}
               />
             </Stack>
           </Box>
