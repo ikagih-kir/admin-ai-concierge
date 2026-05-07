@@ -30,6 +30,10 @@ const menu: MenuItem[] = [
       { label: "クチコミ管理", path: "/reviews" },
       { label: "記事管理", path: "/articles" },
       { label: "ホームダイアログ管理", path: "/home-dialogs", },
+      {
+        label: "プッシュ通知",
+        path: "/push-notifications/send",
+      },
       { label: "秘書メッセージ管理", path: "/assistant-messages" },
       { label: "実績管理", path: "/hit-results" },
     ],

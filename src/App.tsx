@@ -46,6 +46,8 @@ import JockeyTrendInputPage from "./pages/JockeyTrend/JockeyTrendInputPage";
 import HomeDialogListPage from "./pages/HomeDialog/HomeDialogListPage";
 import HomeDialogCreatePage from "./pages/HomeDialog/HomeDialogCreatePage";
 
+import PushNotificationSendPage from "./pages/PushNotification/PushNotificationSendPage";
+
 import Login from "./pages/Login/LoginPage";
 
 /**
@@ -136,6 +138,9 @@ const App = () => {
         <Route path="/home-dialogs" element={<HomeDialogListPage />} />
         <Route path="/home-dialogs/create" element={<HomeDialogCreatePage />} />
         <Route path="/home-dialogs/:id/edit" element={<HomeDialogCreatePage />} />
+
+        {/* プッシュ通知 */}
+        <Route path="/push-notifications/send" element={<PushNotificationSendPage />} />
         
       
       </Route>
