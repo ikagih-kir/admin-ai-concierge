@@ -371,11 +371,11 @@ export default function FrameTrendInputPage() {
                   <Button variant="outlined" onClick={handleSample}>
                     サンプル入力
                   </Button>
-              
+            
                   <Button variant="outlined" color="inherit" onClick={handleReset}>
                     リセット
                   </Button>
-              
+            
                   <Button
                     variant="outlined"
                     color="error"
@@ -384,7 +384,7 @@ export default function FrameTrendInputPage() {
                   >
                     {isDeleting ? "削除中..." : "この日の入力データを削除"}
                   </Button>
-              
+            
                   <Button
                     variant="contained"
                     onClick={handleSubmit}
@@ -392,7 +392,7 @@ export default function FrameTrendInputPage() {
                   >
                     {isSaving ? "保存中..." : "保存して集計する"}
                   </Button>
-              
+            
                   <Button
                     variant="outlined"
                     onClick={() => navigate("/frame-trends")}
@@ -401,6 +401,7 @@ export default function FrameTrendInputPage() {
                   </Button>
                 </Stack>
               </Stack>
+            </Stack>
           </CardContent>
         </Card>
 
