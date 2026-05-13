@@ -16,6 +16,7 @@ import {
 import {
   createFrameTrendInputsBatch,
   fetchFrameTrends,
+  deleteFrameTrendInputs,
 } from "@api/frameTrends";
 
 const CENTRAL_VENUES = [
@@ -93,6 +94,7 @@ export default function FrameTrendInputPage() {
   const [venue, setVenue] = useState(CENTRAL_VENUES[0]);
   const [rows, setRows] = useState<RaceInputRow[]>(buildInitialRows());
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [latestSnapshot, setLatestSnapshot] = useState<FrameTrend | null>(null);
 
@@ -230,6 +232,48 @@ export default function FrameTrendInputPage() {
     }
   };
 
+  const handleDeleteInputs = async () => {
+    if (!targetDate) {
+      setSnackbarSeverity("error");
+      setSnackbarMessage("対象日を選択してください。");
+      setSnackbarOpen(true);
+      return;
+    }
+    if (!venue) {
+      setSnackbarSeverity("error");
+      setSnackbarMessage("競馬場を選択してください。");
+      setSnackbarOpen(true);
+      return;
+    }
+    const ok = window.confirm(
+      `${targetDate} / ${venue} の枠順トレンド入力データを削除します。\n\nこの操作をすると、1〜6Rの入力データと自動生成された枠順トレンドが削除され、月別No.1枠の集計からも外れます。\n\n本当に削除しますか？`
+    );
+
+    if (!ok) return;
+
+    setIsDeleting(true);
+
+    try {
+      await deleteFrameTrendInputs({
+        targetDate,
+        venue,
+      });
+
+      setRows(buildInitialRows());
+      setLatestSnapshot(null);
+
+      setSnackbarSeverity("success");
+      setSnackbarMessage("枠順トレンド入力データを削除しました。");
+      setSnackbarOpen(true);
+    } catch (e: any) {
+      setSnackbarSeverity("error");
+      setSnackbarMessage(e?.response?.data?.detail ?? "削除に失敗しました。");
+      setSnackbarOpen(true);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <Box p={3}>
       <Stack spacing={3}>
@@ -317,28 +361,46 @@ export default function FrameTrendInputPage() {
                 ))}
               </Stack>
 
-              <Stack direction="row" spacing={2} flexWrap="wrap">
-                <Button variant="outlined" onClick={handleSample}>
-                  サンプル入力
-                </Button>
-                <Button variant="outlined" color="inherit" onClick={handleReset}>
-                  リセット
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={handleSubmit}
-                  disabled={isSaving}
-                >
-                  {isSaving ? "保存中..." : "保存して集計する"}
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate("/frame-trends")}
-                >
-                  一覧に戻る
-                </Button>
+              <Stack spacing={1}>
+                <Alert severity="warning" variant="outlined">
+                  削除すると、選択中の「対象日 / 競馬場」の1〜6R入力データと自動生成データが削除され、
+                  月別No.1枠の集計からも外れます。
+                </Alert>
+
+                <Stack direction="row" spacing={2} flexWrap="wrap">
+                  <Button variant="outlined" onClick={handleSample}>
+                    サンプル入力
+                  </Button>
+              
+                  <Button variant="outlined" color="inherit" onClick={handleReset}>
+                    リセット
+                  </Button>
+              
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={handleDeleteInputs}
+                    disabled={isSaving || isDeleting || !targetDate || !venue}
+                  >
+                    {isDeleting ? "削除中..." : "この日の入力データを削除"}
+                  </Button>
+              
+                  <Button
+                    variant="contained"
+                    onClick={handleSubmit}
+                    disabled={isSaving || isDeleting}
+                  >
+                    {isSaving ? "保存中..." : "保存して集計する"}
+                  </Button>
+              
+                  <Button
+                    variant="outlined"
+                    onClick={() => navigate("/frame-trends")}
+                  >
+                    一覧に戻る
+                  </Button>
+                </Stack>
               </Stack>
-            </Stack>
           </CardContent>
         </Card>
 

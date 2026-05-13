@@ -96,3 +96,17 @@ export const createFrameTrendInputsBatch = async (
   const res = await apiClient.post("/admin/frame-trends/inputs/batch", data);
   return res.data as FrameTrendInputOut[];
 };
+
+export const deleteFrameTrendInputs = async (params: {
+  targetDate: string;
+  venue: string;
+}) => {
+  const response = await apiClient.delete("/admin/frame-trends/inputs", {
+    params: {
+      target_date: params.targetDate,
+      venue: params.venue,
+    },
+  });
+
+  return response.data;
+};
