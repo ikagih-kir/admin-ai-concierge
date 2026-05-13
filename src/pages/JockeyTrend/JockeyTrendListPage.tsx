@@ -16,7 +16,7 @@ import {
   Chip,
 } from "@mui/material";
 import {
-  deleteJockeyTrend,
+  deleteJockeyTrendsByDateVenue,
   fetchJockeyTrends,
   JockeyTrendItem,
   MeetingType,
@@ -47,17 +47,6 @@ export default function JockeyTrendListPage() {
     load();
   }, []);
 
-  const handleDelete = async (id: number) => {
-    const ok = window.confirm("この騎手トレンドデータを削除しますか？");
-    if (!ok) return;
-
-    try {
-      await deleteJockeyTrend(id);
-      await load();
-    } catch (e: any) {
-      alert(e?.response?.data?.detail ?? "削除に失敗しました");
-    }
-  };
 
   const meetingLabel = (value: MeetingType) => {
     return value === "central" ? "中央競馬" : "地方競馬";
@@ -253,14 +242,18 @@ export default function JockeyTrendListPage() {
                           variant="outlined"
                           onClick={async () => {
                             const ok = window.confirm(
-                              `${group.race_date} ${group.venue} の騎手トレンドをまとめて削除しますか？`
+                              `${group.race_date} / ${group.venue} の騎手トレンドをまとめて削除します。\n\n月間勝利数ランキングや今年の月間No.1騎手の集計からも外れます。\n\n本当に削除しますか？`
                             );
+
                             if (!ok) return;
-            
+
                             try {
-                              for (const item of group.items) {
-                                await deleteJockeyTrend(item.id);
-                              }
+                              await deleteJockeyTrendsByDateVenue({
+                                raceDate: group.race_date,
+                                meetingType: group.meeting_type,
+                                venue: group.venue,
+                              });
+                        
                               await load();
                             } catch (e: any) {
                               alert(e?.response?.data?.detail ?? "削除に失敗しました");

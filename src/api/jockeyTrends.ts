@@ -56,3 +56,22 @@ export async function deleteJockeyTrend(id: number) {
   const res = await axios.delete(`${API_BASE_URL}/admin/jockey-trends/${id}`);
   return res.data;
 }
+
+export async function deleteJockeyTrendsByDateVenue(params: {
+  raceDate: string;
+  meetingType: MeetingType;
+  venue: string;
+}) {
+  const res = await axios.delete(
+    `${API_BASE_URL}/admin/jockey-trends/by-date-venue`,
+    {
+      params: {
+        race_date: params.raceDate,
+        meeting_type: params.meetingType,
+        venue: params.venue,
+      },
+    }
+  );
+
+  return res.data;
+}

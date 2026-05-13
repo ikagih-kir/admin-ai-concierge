@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -16,6 +16,7 @@ import {
 import {
   createJockeyTrend,
   deleteJockeyTrend,
+  deleteJockeyTrendsByDateVenue,
   fetchJockeyTrends,
   JockeyTrendItem,
   MeetingType,
@@ -78,10 +79,22 @@ function todayJstString(): string {
 
 export default function JockeyTrendInputPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [meetingType, setMeetingType] = useState<MeetingType>("central");
-  const [raceDate, setRaceDate] = useState(todayJstString());
-  const [venue, setVenue] = useState(CENTRAL_VENUES[0]);
+  const initialMeetingType =
+    searchParams.get("meeting_type") === "local" ? "local" : "central";
+
+  const initialRaceDate = searchParams.get("race_date") || todayJstString();
+
+  const initialVenue =
+    searchParams.get("venue") ||
+    (initialMeetingType === "central" ? CENTRAL_VENUES[0] : LOCAL_VENUES[0]);
+
+  const [meetingType, setMeetingType] =
+    useState<MeetingType>(initialMeetingType);
+
+  const [raceDate, setRaceDate] = useState(initialRaceDate);
+  const [venue, setVenue] = useState(initialVenue);
   const [rows, setRows] = useState<RaceInputRow[]>(buildInitialRows());
 
   const [existingItems, setExistingItems] = useState<JockeyTrendItem[]>([]);
@@ -89,6 +102,7 @@ export default function JockeyTrendInputPage() {
 
   const [isLoadingExisting, setIsLoadingExisting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
@@ -220,33 +234,33 @@ export default function JockeyTrendInputPage() {
       showMessage("error", "対象日を入力してください。");
       return;
     }
-
+  
     if (!venue.trim()) {
       showMessage("error", "競馬場を選択してください。");
       return;
     }
-
+  
     if (filledRows.length === 0) {
       showMessage("error", "1R〜6Rのうち、最低1件は騎手名を入力してください。");
       return;
     }
-
+  
     const ok =
       existingItems.length > 0
         ? window.confirm(
             "既存データがあります。現在の入力内容で上書き保存しますか？"
           )
         : true;
-
+  
     if (!ok) return;
-
+  
     setIsSaving(true);
-
+  
     try {
       for (const item of existingItems) {
         await deleteJockeyTrend(item.id);
       }
-
+  
       for (const row of filledRows) {
         await createJockeyTrend({
           race_date: raceDate,
@@ -260,16 +274,16 @@ export default function JockeyTrendInputPage() {
           is_published: true,
         });
       }
-
+  
       const saved = await fetchJockeyTrends({
         race_date: raceDate,
         meeting_type: meetingType,
         venue,
       });
-
+  
       setExistingItems(saved);
       setLatestItems(saved);
-
+  
       showMessage("success", "騎手トレンドを保存しました。");
     } catch (e: any) {
       showMessage("error", e?.response?.data?.detail ?? "保存に失敗しました");
@@ -277,6 +291,48 @@ export default function JockeyTrendInputPage() {
       setIsSaving(false);
     }
   };
+
+  const handleDeleteByDateVenue = async () => {
+    if (!raceDate) {
+      showMessage("error", "対象日を入力してください。");
+      return;
+    }
+  
+    if (!venue.trim()) {
+      showMessage("error", "競馬場を選択してください。");
+      return;
+    }
+  
+    const ok = window.confirm(
+      `${raceDate} / ${venue} の騎手トレンドデータを削除します。\n\nこの操作をすると、選択中の開催区分・対象日・競馬場の1〜6R勝利騎手データが削除され、月間勝利数ランキングや今年の月間No.1騎手の集計からも外れます。\n\n本当に削除しますか？`
+    );
+  
+    if (!ok) return;
+  
+    setIsDeleting(true);
+  
+    try {
+      await deleteJockeyTrendsByDateVenue({
+        raceDate,
+        meetingType,
+        venue,
+      });
+  
+      setRows(buildInitialRows());
+      setExistingItems([]);
+      setLatestItems([]);
+
+      showMessage("success", "騎手トレンドデータを削除しました。");
+    } catch (e: any) {
+      showMessage(
+        "error",
+        e?.response?.data?.detail ?? "削除に失敗しました。"
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
 
   return (
     <Box p={3}>
@@ -407,35 +463,51 @@ export default function JockeyTrendInputPage() {
                 ))}
               </Stack>
 
-              <Stack direction="row" spacing={2} flexWrap="wrap">
-                <Button variant="outlined" onClick={handleSample}>
-                  サンプル入力
-                </Button>
+              <Stack spacing={1}>
+                <Alert severity="warning" variant="outlined">
+                  削除すると、選択中の「開催区分 / 対象日 / 競馬場」の騎手トレンドデータが削除され、
+                  月間勝利数ランキングや今年の月間No.1騎手の集計からも外れます。
+                </Alert>
 
-                <Button variant="outlined" color="inherit" onClick={handleReset}>
-                  入力をクリア
-                </Button>
-
-                <Button
-                  variant="contained"
-                  onClick={handleSubmit}
-                  disabled={isSaving}
-                >
-                  {isSaving
-                    ? "保存中..."
-                    : existingItems.length > 0
-                    ? "上書き保存する"
-                    : "保存する"}
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate("/jockey-trends")}
-                >
-                  一覧に戻る
-                </Button>
+                <Stack direction="row" spacing={2} flexWrap="wrap">
+                  <Button variant="outlined" onClick={handleSample}>
+                    サンプル入力
+                  </Button>
+              
+                  <Button variant="outlined" color="inherit" onClick={handleReset}>
+                    入力をクリア
+                  </Button>
+              
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={handleDeleteByDateVenue}
+                    disabled={isSaving || isDeleting || !raceDate || !venue}
+                  >
+                    {isDeleting ? "削除中..." : "この日の騎手データを削除"}
+                  </Button>
+              
+                  <Button
+                    variant="contained"
+                    onClick={handleSubmit}
+                    disabled={isSaving || isDeleting}
+                  >
+                    {isSaving
+                      ? "保存中..."
+                      : existingItems.length > 0
+                      ? "上書き保存する"
+                      : "保存する"}
+                  </Button>
+              
+                  <Button
+                    variant="outlined"
+                    onClick={() => navigate("/jockey-trends")}
+                  >
+                    一覧に戻る
+                  </Button>
+                </Stack>
               </Stack>
-            </Stack>
+            </Stack>  
           </CardContent>
         </Card>
 
