@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -8,10 +8,17 @@ import {
   Stack,
   Switch,
   FormControlLabel,
+  MenuItem,
 } from "@mui/material";
 import { createArticle } from "@api/articles";
+import { fetchSites } from "@api/sites";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+
+type SiteOption = {
+  id: number;
+  name: string;
+};
 
 export default function ArticleCreatePage() {
   const navigate = useNavigate();
@@ -31,6 +38,9 @@ export default function ArticleCreatePage() {
     []
   );
 
+  const [sites, setSites] = useState<SiteOption[]>([]);
+  const [siteId, setSiteId] = useState("");
+
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [category, setCategory] = useState("");
@@ -44,6 +54,27 @@ export default function ArticleCreatePage() {
   const [isPublic, setIsPublic] = useState(true);
   const [publishedAt, setPublishedAt] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  // ここで対象サイト一覧を読み込みます
+  useEffect(() => {
+    const loadSites = async () => {
+      try {
+        const data = await fetchSites();
+
+        setSites(
+          data.map((site: any) => ({
+            id: Number(site.id),
+            name: site.name ?? `サイトID: ${site.id}`,
+          }))
+        );
+      } catch (e) {
+        console.error(e);
+        setError("対象サイト一覧の取得に失敗しました");
+      }
+    };
+
+    loadSites();
+  }, []);
 
   const handleInsertBodyImage = () => {
     if (!bodyImageUrl.trim()) {
@@ -84,6 +115,7 @@ export default function ArticleCreatePage() {
 
     try {
       await createArticle({
+        site_id: siteId ? Number(siteId) : null,
         title,
         slug,
         category: category || undefined,
@@ -127,6 +159,22 @@ export default function ArticleCreatePage() {
           required
           fullWidth
         />
+
+        <TextField
+          select
+          label="対象サイト"
+          value={siteId}
+          onChange={(e) => setSiteId(e.target.value)}
+          helperText="この記事で紹介する掲載サイトを選択してください"
+          fullWidth
+        >
+          <MenuItem value="">未選択</MenuItem>
+          {sites.map((site) => (
+            <MenuItem key={site.id} value={String(site.id)}>
+              {site.name}
+            </MenuItem>
+          ))}
+        </TextField>
 
         <TextField
           label="カテゴリ"

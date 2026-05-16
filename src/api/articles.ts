@@ -1,6 +1,7 @@
 import apiClient from "@api/client";
 
 export type ArticlePayload = {
+  site_id?: number | null;
   title: string;
   slug: string;
   category?: string;

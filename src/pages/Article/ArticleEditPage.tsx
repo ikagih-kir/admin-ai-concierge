@@ -8,10 +8,19 @@ import {
   Stack,
   Switch,
   FormControlLabel,
+  MenuItem,
 } from "@mui/material";
 import { fetchArticle, updateArticle } from "@api/articles";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { fetchSites } from "@api/sites";
+
+type SiteOption = {
+  id: number;
+  name: string;
+};
+
+
 
 export default function ArticleEditPage() {
   const navigate = useNavigate();
@@ -33,6 +42,9 @@ export default function ArticleEditPage() {
     []
   );
 
+  const [sites, setSites] = useState<SiteOption[]>([]);
+  const [siteId, setSiteId] = useState("");
+
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [category, setCategory] = useState("");
@@ -48,9 +60,30 @@ export default function ArticleEditPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const loadSites = async () => {
+      try {
+        const data = await fetchSites();
+        setSites(
+          data.map((site: any) => ({
+            id: site.id,
+            name: site.name,
+          }))
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    loadSites();
+  }, []);
+
+
+  useEffect(() => {
     const load = async () => {
       try {
         const article = await fetchArticle(articleId);
+
+        setSiteId(article.site_id ? String(article.site_id) : "");
 
         setTitle(article.title ?? "");
         setSlug(article.slug ?? "");
@@ -112,6 +145,7 @@ export default function ArticleEditPage() {
 
     try {
       await updateArticle(articleId, {
+        site_id: siteId ? Number(siteId) : null,
         title,
         slug,
         category: category || undefined,
@@ -155,6 +189,21 @@ export default function ArticleEditPage() {
           required
           fullWidth
         />
+        <TextField
+          select
+          label="対象サイト"
+          value={siteId}
+          onChange={(e) => setSiteId(e.target.value)}
+          helperText="この記事で紹介する掲載サイトを選択してください"
+          fullWidth
+        >
+          <MenuItem value="">未選択</MenuItem>
+          {sites.map((site) => (
+            <MenuItem key={site.id} value={String(site.id)}>
+              {site.name}
+            </MenuItem>
+          ))}
+        </TextField>
 
         <TextField
           label="カテゴリ"
