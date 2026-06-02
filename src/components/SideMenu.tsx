@@ -22,6 +22,7 @@ const menu: MenuItem[] = [
     children: [
       { label: "ダッシュボード", path: "/dashboard" },
       { label: "掲載サイト管理", path: "/sites" },
+      { label: "枠順・騎手トレンド入力", path: "/trend-input" },
       { label: "枠順トレンド入力", path: "/frame-trends" },
       { label: "騎手トレンド入力", path: "/jockey-trends" },
       { label: "AIチャットFAQ管理", path: "/chat-faqs" },
