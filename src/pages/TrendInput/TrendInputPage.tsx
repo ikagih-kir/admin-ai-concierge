@@ -121,8 +121,8 @@ export default function TrendInputPage() {
     [meetingType]
   );
 
-  const allFrameFilled = useMemo(
-    () => rows.every((row) => row.winningFrame !== ""),
+  const filledFrameRows = useMemo(
+    () => rows.filter((row) => row.winningFrame !== ""),
     [rows]
   );
 
@@ -246,8 +246,8 @@ export default function TrendInputPage() {
 
   // ── 枠順保存 ──────────────────────────────────────────
   const handleSaveFrame = async () => {
-    if (!allFrameFilled) {
-      showMessage("error", "1R〜6Rの枠をすべて入力してください。");
+    if (filledFrameRows.length === 0) {
+      showMessage("error", "1R〜6Rのうち、最低1件は枠を入力してください。");
       return;
     }
     setIsSavingFrame(true);
@@ -255,7 +255,7 @@ export default function TrendInputPage() {
       await createFrameTrendInputsBatch({
         target_date: targetDate,
         venue,
-        results: rows.map((row) => ({
+        results: filledFrameRows.map((row) => ({
           race_number: row.raceNumber,
           winning_frame: Number(row.winningFrame),
         })),
@@ -324,11 +324,11 @@ export default function TrendInputPage() {
 
   // ── 両方まとめて保存 ─────────────────────────────────
   const handleSaveAll = async () => {
-    if (!allFrameFilled && filledJockeyRows.length === 0) {
+    if (filledFrameRows.length === 0 && filledJockeyRows.length === 0) {
       showMessage("error", "枠または騎手名を入力してください。");
       return;
     }
-    if (allFrameFilled) await handleSaveFrame();
+    if (filledFrameRows.length > 0) await handleSaveFrame();
     if (filledJockeyRows.length > 0) await handleSaveJockey();
   };
 

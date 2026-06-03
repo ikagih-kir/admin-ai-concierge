@@ -109,8 +109,8 @@ export default function FrameTrendInputPage() {
     [meetingType]
   );
 
-  const allFilled = useMemo(
-    () => rows.every((row) => row.winningFrame !== ""),
+  const filledRows = useMemo(
+    () => rows.filter((row) => row.winningFrame !== ""),
     [rows]
   );
 
@@ -190,9 +190,9 @@ export default function FrameTrendInputPage() {
   };
 
   const handleSubmit = async () => {
-    if (!allFilled) {
+    if (filledRows.length === 0) {
       setSnackbarSeverity("error");
-      setSnackbarMessage("1R〜6Rの枠をすべて入力してください。");
+      setSnackbarMessage("1R〜6Rのうち、最低1件は枠を入力してください。");
       setSnackbarOpen(true);
       return;
     }
@@ -203,7 +203,7 @@ export default function FrameTrendInputPage() {
       await createFrameTrendInputsBatch({
         target_date: targetDate,
         venue,
-        results: rows.map((row) => ({
+        results: filledRows.map((row) => ({
           race_number: row.raceNumber,
           winning_frame: Number(row.winningFrame),
         })),
