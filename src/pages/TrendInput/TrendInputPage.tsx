@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import {
   createFrameTrendInputsBatch,
+  fetchFrameTrendInputs,
   fetchFrameTrends,
   deleteFrameTrendInputs,
 } from "@api/frameTrends";
@@ -173,36 +174,51 @@ export default function TrendInputPage() {
     setSnackbarOpen(true);
   };
 
-  // 騎手の既存データを読み込む
-  const loadExistingJockeyItems = async () => {
+  // 既存データ（枠順・騎手）を読み込む
+  const loadExistingInputData = async () => {
     if (!targetDate || !venue) return;
-    try {
-      const data = await fetchJockeyTrends({ race_date: targetDate, meeting_type: meetingType, venue });
-      setExistingJockeyItems(data);
-      setLatestJockeyItems(data);
 
-      // 騎手データを行にマージ（枠は上書きしない）
-      setRows((prev) => {
-        const next = prev.map((row) => ({ ...row }));
-        data.forEach((item) => {
-          const index = item.race_no - 1;
-          if (index < 0 || index >= next.length) return;
-          next[index] = {
-            ...next[index],
-            jockeyName: item.jockey_name ?? "",
-            horseName: item.horse_name ?? "",
-            memo: item.memo ?? "",
-          };
-        });
-        return next;
+    try {
+      const [frameData, jockeyData] = await Promise.all([
+        fetchFrameTrendInputs({ target_date: targetDate, venue }),
+        fetchJockeyTrends({ race_date: targetDate, meeting_type: meetingType, venue }),
+      ]);
+
+      setExistingJockeyItems(jockeyData);
+      setLatestJockeyItems(jockeyData);
+
+      const nextRows = buildInitialRows();
+
+      frameData.forEach((item) => {
+        const index = item.race_number - 1;
+        if (index < 0 || index >= nextRows.length) return;
+
+        nextRows[index] = {
+          ...nextRows[index],
+          winningFrame: item.winning_frame,
+        };
       });
+
+      jockeyData.forEach((item) => {
+        const index = item.race_no - 1;
+        if (index < 0 || index >= nextRows.length) return;
+
+        nextRows[index] = {
+          ...nextRows[index],
+          jockeyName: item.jockey_name ?? "",
+          horseName: item.horse_name ?? "",
+          memo: item.memo ?? "",
+        };
+      });
+
+      setRows(nextRows);
     } catch {
       // 読み込み失敗は無視（初回は空）
     }
   };
 
   useEffect(() => {
-    loadExistingJockeyItems();
+    loadExistingInputData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetDate, meetingType, venue]);
 

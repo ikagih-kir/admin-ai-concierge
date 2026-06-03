@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Alert,
@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import {
   createFrameTrendInputsBatch,
+  fetchFrameTrendInputs,
   fetchFrameTrends,
   deleteFrameTrendInputs,
 } from "@api/frameTrends";
@@ -95,6 +96,8 @@ export default function FrameTrendInputPage() {
   const [rows, setRows] = useState<RaceInputRow[]>(buildInitialRows());
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoadingExisting, setIsLoadingExisting] = useState(false);
+  const [existingInputCount, setExistingInputCount] = useState(0);
 
   const [latestSnapshot, setLatestSnapshot] = useState<FrameTrend | null>(null);
 
@@ -188,6 +191,48 @@ export default function FrameTrendInputPage() {
       { raceNumber: 6, winningFrame: 7 },
     ]);
   };
+
+  const loadExistingInputs = async () => {
+    if (!targetDate || !venue) return;
+
+    setIsLoadingExisting(true);
+
+    try {
+      const data = await fetchFrameTrendInputs({
+        target_date: targetDate,
+        venue,
+      });
+
+      setExistingInputCount(data.length);
+
+      const nextRows = buildInitialRows();
+
+      data.forEach((item) => {
+        const index = item.race_number - 1;
+        if (index < 0 || index >= nextRows.length) return;
+
+        nextRows[index] = {
+          raceNumber: item.race_number,
+          winningFrame: item.winning_frame,
+        };
+      });
+
+      setRows(nextRows);
+    } catch (e: any) {
+      setSnackbarSeverity("error");
+      setSnackbarMessage(
+        e?.response?.data?.detail ?? "既存入力データの取得に失敗しました"
+      );
+      setSnackbarOpen(true);
+    } finally {
+      setIsLoadingExisting(false);
+    }
+  };
+
+  useEffect(() => {
+    loadExistingInputs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [targetDate, venue]);
 
   const handleSubmit = async () => {
     if (filledRows.length === 0) {
@@ -325,6 +370,24 @@ export default function FrameTrendInputPage() {
                     </MenuItem>
                   ))}
                 </TextField>
+              </Stack>
+
+              <Divider />
+
+              <Stack direction="row" spacing={2} flexWrap="wrap">
+                <Button
+                  variant="outlined"
+                  onClick={loadExistingInputs}
+                  disabled={isLoadingExisting}
+                >
+                  {isLoadingExisting ? "読み込み中..." : "既存データ再読み込み"}
+                </Button>
+
+                {existingInputCount > 0 && (
+                  <Typography color="success.main" alignSelf="center">
+                    既存入力 {existingInputCount}件を読み込み済み
+                  </Typography>
+                )}
               </Stack>
 
               <Divider />
