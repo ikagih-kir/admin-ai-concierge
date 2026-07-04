@@ -31,6 +31,7 @@ const menu: MenuItem[] = [
       { label: "クチコミ管理", path: "/reviews" },
       { label: "記事管理", path: "/articles" },
       { label: "ホームダイアログ管理", path: "/home-dialogs", },
+      { label: "ホームバナー管理", path: "/home-banners" },
       {
         label: "プッシュ通知",
         path: "/push-notifications/send",
@@ -50,6 +51,7 @@ const menu: MenuItem[] = [
       { label: "秘書メッセージを作成", path: "/assistant-messages/create" },
       { label: "記事を作成", path: "/articles/new" },
       { label: "ホームダイアログを作成", path: "/home-dialogs/create" },
+      { label: "ホームバナーを作成", path: "/home-banners/create" },
       { label: "実績を作成", path: "/hit-results/new" },
     ],
   },
@@ -152,6 +154,12 @@ export default function SideMenu() {
       );
     }
 
+    if (path === "/home-banners") {
+      return (
+        location.pathname === "/home-banners" ||
+        location.pathname.startsWith("/home-banners/")
+      );
+    }
 
     return location.pathname === path;
   };

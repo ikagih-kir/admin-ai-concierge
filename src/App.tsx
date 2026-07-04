@@ -48,6 +48,9 @@ import TrendInputPage from "./pages/TrendInput/TrendInputPage";
 import HomeDialogListPage from "./pages/HomeDialog/HomeDialogListPage";
 import HomeDialogCreatePage from "./pages/HomeDialog/HomeDialogCreatePage";
 
+import HomeBannerListPage from "./pages/HomeBanner/HomeBannerListPage";
+import HomeBannerCreatePage from "./pages/HomeBanner/HomeBannerCreatePage";
+
 import PushNotificationSendPage from "./pages/PushNotification/PushNotificationSendPage";
 
 import Login from "./pages/Login/LoginPage";
@@ -143,6 +146,11 @@ const App = () => {
         <Route path="/home-dialogs" element={<HomeDialogListPage />} />
         <Route path="/home-dialogs/create" element={<HomeDialogCreatePage />} />
         <Route path="/home-dialogs/:id/edit" element={<HomeDialogCreatePage />} />
+
+        {/* ホームバナー管理 */}
+        <Route path="/home-banners" element={<HomeBannerListPage />} />
+        <Route path="/home-banners/create" element={<HomeBannerCreatePage />} />
+        <Route path="/home-banners/:id/edit" element={<HomeBannerCreatePage />} />
 
         {/* プッシュ通知 */}
         <Route path="/push-notifications/send" element={<PushNotificationSendPage />} />
