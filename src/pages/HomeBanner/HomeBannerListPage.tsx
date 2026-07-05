@@ -31,6 +31,18 @@ const formatDateTime = (value?: string | null) => {
   return date.toLocaleString("ja-JP");
 };
 
+const placementLabels: Record<string, string> = {
+  home_middle: "Home中段",
+  home_bottom: "Home最下段",
+  winning_flow_bottom: "的中フロー最下段",
+  free_prediction_bottom: "無料予想一覧最下段",
+  ranking_bottom: "ランキング最下段",
+};
+
+const getPlacementLabel = (value: string) => {
+  return placementLabels[value] ?? value;
+};
+
 export default function HomeBannerListPage() {
   const navigate = useNavigate();
   const [items, setItems] = useState<HomeBanner[]>([]);
@@ -108,7 +120,7 @@ export default function HomeBannerListPage() {
               <TableRow>
                 <TableCell>ID</TableCell>
                 <TableCell sx={{ minWidth: 220 }}>バナー</TableCell>
-                <TableCell sx={{ minWidth: 180 }}>タイトル</TableCell>
+                <TableCell sx={{ minWidth: 180 }}>タイトル</TableCell><TableCell sx={{ minWidth: 160 }}>表示箇所</TableCell>
                 <TableCell sx={{ minWidth: 220 }}>リンク先</TableCell>
                 <TableCell sx={{ minWidth: 220 }}>表示期間</TableCell>
                 <TableCell>表示</TableCell>
@@ -120,7 +132,7 @@ export default function HomeBannerListPage() {
             <TableBody>
               {loading && (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
+                  <TableCell colSpan={9} align="center">
                     読み込み中...
                   </TableCell>
                 </TableRow>
@@ -128,7 +140,7 @@ export default function HomeBannerListPage() {
 
               {!loading && items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} align="center">
+                  <TableCell colSpan={9} align="center">
                     データがありません
                   </TableCell>
                 </TableRow>
@@ -156,6 +168,15 @@ export default function HomeBannerListPage() {
 
                   <TableCell>
                     <Typography fontWeight={600}>{item.title}</Typography>
+                  </TableCell>
+
+                  <TableCell>
+                    <Chip
+                      size="small"
+                      label={placementLabels[item.placement] ?? item.placement}
+                      color="default"
+                      variant="outlined"
+                    />
                   </TableCell>
 
                   <TableCell>

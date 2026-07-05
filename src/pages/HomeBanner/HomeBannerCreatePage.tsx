@@ -9,7 +9,12 @@ import {
   Switch,
   FormControlLabel,
   Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
+
 import {
   createHomeBanner,
   fetchHomeBanner,
@@ -25,6 +30,18 @@ const toDatetimeLocal = (value?: string | null) => {
   return localDate.toISOString().slice(0, 16);
 };
 
+const placementOptions = [
+  { value: "home_middle", label: "Home中段" },
+  { value: "home_bottom", label: "Home最下段" },
+  { value: "winning_flow_bottom", label: "的中フロー最下段" },
+  { value: "free_prediction_bottom", label: "無料予想一覧最下段" },
+  { value: "ranking_bottom", label: "ランキング最下段" },
+];
+
+const getPlacementLabel = (value: string) => {
+  return placementOptions.find((item) => item.value === value)?.label ?? value;
+};
+
 export default function HomeBannerCreatePage() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -33,6 +50,7 @@ export default function HomeBannerCreatePage() {
   const [title, setTitle] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
+  const [placement, setPlacement] = useState("home_middle");
   const [isActive, setIsActive] = useState(true);
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
@@ -49,6 +67,7 @@ export default function HomeBannerCreatePage() {
         setTitle(banner.title ?? "");
         setImageUrl(banner.image_url ?? "");
         setLinkUrl(banner.link_url ?? "");
+        setPlacement(banner.placement ?? "home_middle");
         setIsActive(!!banner.is_active);
         setStartAt(toDatetimeLocal(banner.start_at));
         setEndAt(toDatetimeLocal(banner.end_at));
@@ -80,6 +99,7 @@ export default function HomeBannerCreatePage() {
       title,
       image_url: imageUrl,
       link_url: linkUrl || undefined,
+      placement,
       is_active: isActive,
       start_at: startAt ? new Date(startAt).toISOString() : null,
       end_at: endAt ? new Date(endAt).toISOString() : null,
@@ -134,6 +154,22 @@ export default function HomeBannerCreatePage() {
           required
           fullWidth
         />
+
+        <FormControl fullWidth>
+          <InputLabel id="home-banner-placement-label">表示箇所</InputLabel>
+          <Select
+            labelId="home-banner-placement-label"
+            label="表示箇所"
+            value={placement}
+            onChange={(e) => setPlacement(e.target.value)}
+          >
+            {placementOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         {imageUrl.trim() && (
           <Paper

@@ -5,6 +5,7 @@ export type HomeBanner = {
   title: string;
   image_url: string;
   link_url?: string | null;
+  placement: string;
   is_active: boolean;
   start_at?: string | null;
   end_at?: string | null;
@@ -17,6 +18,7 @@ export type HomeBannerPayload = {
   title: string;
   image_url: string;
   link_url?: string;
+  placement: string;
   is_active: boolean;
   start_at?: string | null;
   end_at?: string | null;
