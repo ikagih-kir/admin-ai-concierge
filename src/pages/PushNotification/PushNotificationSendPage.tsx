@@ -23,12 +23,24 @@ import {
   sendPushNotification,
   type ScheduledPushNotification,
 } from "@api/pushNotifications";
+import { fetchArticles } from "@api/articles";
+
+
+const ARTICLE_DETAIL_TARGET = "__article_detail__";
+
+type ArticleOption = {
+  id: number;
+  title: string;
+  is_public?: boolean;
+};
+
 
 const targetPathOptions = [
   { label: "騎手トレンド", value: "/jockey-trends" },
   { label: "枠順トレンド", value: "/frame-trends" },
   { label: "無料予想", value: "/free-predictions" },
   { label: "予想サイト一覧", value: "/sites" },
+  { label: "記事詳細", value: ARTICLE_DETAIL_TARGET },
 ];
 
 const toIsoFromLocal = (value: string) => {
@@ -83,6 +95,9 @@ export default function PushNotificationSendPage() {
   const [scheduledAt, setScheduledAt] = useState("");
   const [items, setItems] = useState<ScheduledPushNotification[]>([]);
 
+  const [articles, setArticles] = useState<ArticleOption[]>([]);
+  const [selectedArticleId, setSelectedArticleId] = useState("");
+  
   const [sending, setSending] = useState(false);
   const [savingSchedule, setSavingSchedule] = useState(false);
   const [resultMessage, setResultMessage] = useState("");
@@ -95,18 +110,45 @@ export default function PushNotificationSendPage() {
 
   useEffect(() => {
     loadScheduled();
+
+    const loadArticles = async () => {
+      try {
+        const data = await fetchArticles();
+        setArticles(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    loadArticles();
   }, []);
+
+  const buildTargetPath = () => {
+    if (targetPath === ARTICLE_DETAIL_TARGET) {
+      return selectedArticleId ? `/articles/${selectedArticleId}` : "";
+    }
+
+    return targetPath;
+  };
 
   const validateBase = () => {
     if (!title.trim() || !body.trim()) {
       alert("タイトルと本文を入力してください");
       return false;
     }
+
+    if (targetPath === ARTICLE_DETAIL_TARGET && !selectedArticleId) {
+      alert("記事詳細に遷移する記事を選択してください");
+      return false;
+    }
+
     return true;
   };
 
   const handleSendNow = async () => {
     if (!validateBase()) return;
+
+    const resolvedTargetPath = buildTargetPath();
 
     const ok = window.confirm(
       "登録済みユーザー全員にプッシュ通知を即時送信します。よろしいですか？"
@@ -121,7 +163,7 @@ export default function PushNotificationSendPage() {
       const result = await sendPushNotification({
         title,
         body,
-        target_path: targetPath || undefined,
+        target_path: resolvedTargetPath || undefined,
         target: "all",
       });
 
@@ -139,6 +181,8 @@ export default function PushNotificationSendPage() {
 
   const handleCreateSchedule = async () => {
     if (!validateBase()) return;
+
+    const resolvedTargetPath = buildTargetPath();
 
     if (!scheduledAt) {
       alert("送信予約日時を入力してください");
@@ -171,7 +215,7 @@ export default function PushNotificationSendPage() {
       await createScheduledPushNotification({
         title,
         body,
-        target_path: targetPath || undefined,
+        target_path: resolvedTargetPath || undefined,
         scheduled_at: toIsoFromLocal(scheduledAt),
       });
 
@@ -244,6 +288,24 @@ export default function PushNotificationSendPage() {
             ))}
           </TextField>
 
+          {targetPath === ARTICLE_DETAIL_TARGET && (
+            <TextField
+              select
+              label="遷移先の記事"
+              value={selectedArticleId}
+              onChange={(e) => setSelectedArticleId(e.target.value)}
+              fullWidth
+              helperText="通知をタップした時に開く記事詳細ページを選択してください"
+            >
+              {articles.map((article) => (
+                <MenuItem key={article.id} value={String(article.id)}>
+                  #{article.id} {article.title}
+                  {article.is_public === false ? "（非公開）" : ""}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+
           <Divider />
 
           <TextField
@@ -262,7 +324,7 @@ export default function PushNotificationSendPage() {
               {body || "通知本文"}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              遷移先：{targetPath || "なし"}
+              遷移先：{buildTargetPath() || "なし"}
             </Typography>
           </Paper>
 
